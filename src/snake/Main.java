@@ -29,9 +29,9 @@ public class Main extends Application {
         Canvas canvas = controller.getCanvas();
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.strokeRect(0, 0, 400, 400);
         gc.setStroke(Color.LIGHTGRAY);
         gc.setLineWidth(0.3);
-        gc.strokeRect(0, 0, 400, 400);
         for (int i = 1; i < Room.ROOM_SIZE; i++) {
             gc.strokeLine(i * Room.FIELD_SIZE, 0, i * Room.FIELD_SIZE, canvas.getHeight());
             gc.strokeLine(0, i * Room.FIELD_SIZE, canvas.getWidth(), i * Room.FIELD_SIZE);

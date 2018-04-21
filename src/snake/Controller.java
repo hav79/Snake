@@ -1,9 +1,12 @@
 package snake;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
@@ -18,6 +21,9 @@ public class Controller {
     @FXML
     private Button startButton;
 
+    @FXML
+    private Label countLabel;
+
     private Scene scene;
 
     private Snake snake;
@@ -31,9 +37,7 @@ public class Controller {
         room = new Room(Room.ROOM_SIZE, Room.ROOM_SIZE);
         snake = new Snake(this);
         drawField(FieldType.SNAKE_HEAD, snake.getX(), snake.getY());
-        startButton.setOnAction(event -> {
-            gameLoop();
-        });
+        startButton.setOnAction(event -> gameLoop());
     }
 
     private void gameLoop() {
@@ -44,7 +48,7 @@ public class Controller {
                 snake.move();
                 sleep();
             }
-            endGame();
+            Platform.runLater(this::endGame);
         }).start();
     }
 
@@ -52,6 +56,10 @@ public class Controller {
         int x = (int) (Math.random() * Room.ROOM_SIZE);
         int y = (int) (Math.random() * Room.ROOM_SIZE);
         // FIXME Иногда мышь появляется на змее...
+        while (snake.containsSnake(x, y)) {
+            x = (int) (Math.random() * Room.ROOM_SIZE);
+            y = (int) (Math.random() * Room.ROOM_SIZE);
+        }
         mouse = new Mouse(x, y);
         drawField(FieldType.MOUSE, x, y);
     }
@@ -67,6 +75,7 @@ public class Controller {
             int delay = level < 15 ? (initialDelay - delayStep * level) : 200;
             Thread.sleep(delay);
         } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -103,11 +112,16 @@ public class Controller {
     }
 
     public void endGame() {
-        System.out.println("Game over!");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game over!");
+        alert.setHeaderText(null);
+        alert.setContentText(String.format("Your game is over!%nYour snake include %s sections",
+                countLabel.getText()));
+        alert.showAndWait();
     }
 
     /**
-     * Проверяет находится ли елемент внутри комнаты
+     * Проверяет находится ли элемент внутри комнаты
      */
     public boolean isInsideRoom(int x, int y) {
         return x >= 0 && x < room.getRoomWidth() && y >= 0 && y < room.getRoomHeight();
@@ -117,37 +131,33 @@ public class Controller {
         switch (type) {
             case MOUSE:
                 canvas.getGraphicsContext2D().setFill(Color.DARKGREEN);
-                canvas.getGraphicsContext2D().fillOval(x * Room.FIELD_SIZE + 2,
-                        y * Room.FIELD_SIZE + 2,
-                        Room.FIELD_SIZE - 4, Room.FIELD_SIZE - 4);
+                canvas.getGraphicsContext2D().fillOval(x * Room.FIELD_SIZE + 2.5,
+                        y * Room.FIELD_SIZE + 2.5,
+                        Room.FIELD_SIZE - 5, Room.FIELD_SIZE - 5);
                 break;
             case SNAKE_SECTION:
                 canvas.getGraphicsContext2D().setFill(Color.CHOCOLATE);
-                canvas.getGraphicsContext2D().fillRect(x * Room.FIELD_SIZE + 2,
-                        y * Room.FIELD_SIZE + 2,
-                        Room.FIELD_SIZE - 4, Room.FIELD_SIZE - 4);
+                canvas.getGraphicsContext2D().fillRect(x * Room.FIELD_SIZE + 2.5,
+                        y * Room.FIELD_SIZE + 2.5,
+                        Room.FIELD_SIZE - 5, Room.FIELD_SIZE - 5);
                 break;
             case SNAKE_HEAD:
                 canvas.getGraphicsContext2D().setFill(Color.CHOCOLATE);
-                canvas.getGraphicsContext2D().fillOval(x * Room.FIELD_SIZE + 1,
-                        y * Room.FIELD_SIZE + 1,
-                        Room.FIELD_SIZE - 2, Room.FIELD_SIZE - 2);
+                canvas.getGraphicsContext2D().fillOval(x * Room.FIELD_SIZE + 1.5,
+                        y * Room.FIELD_SIZE + 1.5,
+                        Room.FIELD_SIZE - 3, Room.FIELD_SIZE - 3);
                 break;
         }
     }
 
     public void clearField(int x, int y) {
-        canvas.getGraphicsContext2D().clearRect(x * Room.FIELD_SIZE + 1,
-                y * Room.FIELD_SIZE + 1,
-                Room.FIELD_SIZE - 2, Room.FIELD_SIZE - 2);
+        canvas.getGraphicsContext2D().clearRect(x * Room.FIELD_SIZE + 1.5,
+                y * Room.FIELD_SIZE + 1.5,
+                Room.FIELD_SIZE - 3, Room.FIELD_SIZE - 3);
     }
 
-    public Room getRoom() {
-        return room;
-    }
-
-    public Snake getSnake() {
-        return snake;
+    public void setText(String text) {
+        countLabel.setText(text);
     }
 
     public Mouse getMouse() {

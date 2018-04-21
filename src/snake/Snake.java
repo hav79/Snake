@@ -1,5 +1,7 @@
 package snake;
 
+import javafx.application.Platform;
+
 import java.util.ArrayList;
 
 public class Snake {
@@ -18,6 +20,8 @@ public class Snake {
         this.controller = controller;
         sections = new ArrayList<>();
         sections.add(new SnakeSection());
+        Platform.runLater(() -> controller.setText(String.valueOf(sections.size())));
+//        controller.setText(String.valueOf(sections.size()));
         isAlive = true;
     }
 
@@ -61,7 +65,8 @@ public class Snake {
         {
             controller.eatMouse();   //Хвост не удаляем, но создаем новую мышь.
             addNewHead(head);   //добавили новую голову
-
+            Platform.runLater(() -> controller.setText(String.valueOf(sections.size())));
+//            controller.setText(String.valueOf(sections.size()));
         } else //просто движется
         {
             addNewHead(head);    //добавили новую голову
@@ -100,6 +105,14 @@ public class Snake {
         if (sections.contains(head)) {
             isAlive = false;
         }
+    }
+
+    public boolean containsSnake(int x, int y) {
+        boolean inSnake = false;
+        for (SnakeSection section : sections)
+            if (x == section.getX() && y == section.getY())
+                inSnake = true;
+        return inSnake;
     }
 
     public int getX() {
